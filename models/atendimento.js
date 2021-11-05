@@ -1,7 +1,7 @@
 const moment = require('moment')
 const conexao = require('../infraestrutura/conexao')
 
-class Atendimento{
+class Atendimento {
     adiciona(atendimento, res) {
         const dataCriacao = moment().format('YYYY-MM-DD HH:mm:ss')
         const data = moment(atendimento.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:mm:ss')
@@ -36,13 +36,13 @@ class Atendimento{
                 if (erro) {
                     res.status(400).json(erro)
                 } else {
-                    res.status(201).json(resultados)
+                    res.status(201).json(atendimento)
                 }
             })
         }
     }
 
-    lista(res){
+    lista(res) {
         const sql = 'Select * from Atendimentos'
 
         conexao.query(sql, (erro, resultados) => {
@@ -54,16 +54,43 @@ class Atendimento{
         })
     }
 
-    buscaPorId(id, res){
-        const sql = "SELECT * FROM Atendimentos WHERE id = " +id+ ""
+    buscaPorId(id, res) {
+        const sql = "SELECT * FROM Atendimentos WHERE id = " + id + ""
 
         conexao.query(sql, (erro, resultados) => {
             const atendimento = resultados[0]
 
-            if(erro){
+            if (erro) {
                 res.status(400).json(erro)
             } else {
                 res.status(200).json(atendimento)
+            }
+        })
+    }
+
+    altera(id, valores, res) {
+        if(valores.data){
+            valores.data = moment(valores.data, 'DD/MM/YYYY').format('YYYY-MM-DD HH:MM:SS')
+        }
+        const sql = 'UPDATE Atendimentos SET ? WHERE id=?'
+
+        conexao.query(sql, [valores, id], (erro, resultados) => {
+            if (erro) {
+                res.status(400).json(erro)
+            } else {
+                res.status(200).json({...valores, id})
+            }
+        })
+    }
+
+    deleta(id, res){
+        const sql = "delete from Atendimentos where id = " + id + ""
+
+        conexao.query(sql, (erro, resultados) => {
+            if(erro){
+                res.status(400).json(erro)
+            } else {
+                res.status(200).json({id})
             }
         })
     }
